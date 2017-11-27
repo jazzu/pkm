@@ -2,6 +2,12 @@
 	"version": 0,
 	"dependencies": [
 		{
+			"importpath": "github.com/gorilla/mux",
+			"repository": "https://github.com/gorilla/mux",
+			"revision": "2d5fef06b891c971b14aa6f71ca5ab6c03a36e0e",
+			"branch": "master"
+		},
+		{
 			"importpath": "github.com/jmoiron/jsonq",
 			"repository": "https://github.com/jmoiron/jsonq",
 			"revision": "e874b168d07ecc7808bc950a17998a8aa3141d82",
