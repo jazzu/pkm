@@ -9,9 +9,9 @@ import (
 	"strconv"
 	"time"
 
-	"assembly.org/pkm/caspar"
-	"assembly.org/pkm/vmix"
-	"assembly.org/tools"
+	"code.yensid.fi/pkm/caspar"
+	"code.yensid.fi/pkm/vmix"
+	"code.yensid.fi/tools"
 	"github.com/gorilla/mux"
 )
 
