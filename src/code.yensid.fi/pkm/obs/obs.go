@@ -71,7 +71,7 @@ func Configure() {
 
 	obs = make([]obsConfig, 2)
 
-	obs[0].address = GetEnvParam("OBS_0_ADDRESS", "127.0.0.1")
+	obs[0].address = GetEnvParam("OBS_0_ADDRESS", "10.39.1.83")
 	obs[0].port = GetEnvParam("OBS_0_PORT", "4444")
 
 	obs[1].address = GetEnvParam("OBS_1_ADDRESS", "127.0.0.1")
@@ -121,19 +121,29 @@ func PopulatePlayerConf(jsonData string) {
 // SwitchPlayer käskee tunnettuja palvelimia vaihtamaan inputtia, samat komennot jokaiselle.
 //Inputtien nimet pitää olla OBS:ssä uniikkeja jotta vain oikea kone reagoi (muut antavat virheen josta ei välitetä)
 func SwitchPlayer(input int64, currentPlayer string) {
+
   //ei taideta käyttää ASM-S18
-	if Servers[input] == 0 {
-		return
-	}
+	//if Servers[input] == 0 {
+	//	return
+	//}
 
 	log.Printf("Observattava pelaaja vaihtui %d -> %d", previousPlayer, currentPlayer)
+
+
 	if Players[currentPlayer].Channel == "" {
 		log.Printf("Pelaajatunnusta %s ei löytynyt. Pelaajakuvan vaihto ei onnistu.", currentPlayer)
 		return
 	}
 
-
+	//tässä voisi olla myös for-luuppi käydä kaikki yhdistetyt serverit läpi
+	//uusi pelaaja näkyviin
 	sendCommand(Players[currentPlayer].Channel, true, 0)
+	sendCommand(Players[currentPlayer].Channel, true, 1)
+
+	//vanha pois. jos uusi pelaaja on pienemmällä numerolla kuin vanha, näkyvä muutosta tapahtuu vasta tässä
+	sendCommand(Players[previousPlayer].Channel, false, 0)
+	sendCommand(Players[previousPlayer].Channel, false, 1)
+
 	previousPlayer = currentPlayer
 }
 
@@ -150,12 +160,12 @@ func sendCommand(input string, vis bool, server int) {
 
 	jsonToSend, _ := json.Marshal(commandToSend)
 
-
 	err := obs[server].conn.WriteMessage(websocket.TextMessage, jsonToSend)
 	if err != nil {
 		log.Println("write:", err)
 		return
 	}
+
 
 }
 
