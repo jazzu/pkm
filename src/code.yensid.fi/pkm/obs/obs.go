@@ -41,30 +41,30 @@ type (
 		Commands map[string]string `json:"commands"`
 	}
 
-	obsConfig  struct {
-		address  string
-		port string
-		conn *websocket.Conn
+	obsConfig struct {
+		address string
+		port    string
+		conn    *websocket.Conn
 	}
 
 	// OBS:lle lähetettävä komento
 	SetSceneItemRender struct {
 		RequestType string `json:"request-type"`
-		MessageId string `json:"message-id"`
-		Source	string	 `json:"source"`
-		Render	bool  		`json:"render"`
-		SceneName	string 	`json:"scene-name"`
+		MessageId   string `json:"message-id"`
+		Source      string `json:"source"`
+		Render      bool   `json:"render"`
+		SceneName   string `json:"scene-name"`
 	}
 )
 
 var (
-	obs						 []obsConfig
+	obs            []obsConfig
 	commands       map[string]string
 	Players        map[string]Player
 	Servers        map[int64]int64 // vMix -> Caspar mapping
 	previousPlayer string
 	previousInput  int
-	messageID 		 int
+	messageID      int
 )
 
 func Configure() {
@@ -122,13 +122,12 @@ func PopulatePlayerConf(jsonData string) {
 //Inputtien nimet pitää olla OBS:ssä uniikkeja jotta vain oikea kone reagoi (muut antavat virheen josta ei välitetä)
 func SwitchPlayer(input int64, currentPlayer string) {
 
-  //ei taideta käyttää ASM-S18
+	//ei taideta käyttää ASM-S18
 	//if Servers[input] == 0 {
 	//	return
 	//}
 
 	log.Printf("Observattava pelaaja vaihtui %d -> %d", previousPlayer, currentPlayer)
-
 
 	if Players[currentPlayer].Channel == "" {
 		log.Printf("Pelaajatunnusta %s ei löytynyt. Pelaajakuvan vaihto ei onnistu.", currentPlayer)
@@ -153,10 +152,10 @@ func sendCommand(input string, vis bool, server int) {
 
 	commandToSend := &SetSceneItemRender{
 		RequestType: "SetSceneItemRender",
-		MessageId: strconv.Itoa(messageID),
-		Source: input, // cam1..cam10
-		Render: vis,
-		SceneName: "Scene1"}
+		MessageId:   strconv.Itoa(messageID),
+		Source:      input, // cam1..cam10
+		Render:      vis,
+		SceneName:   "Scene1"}
 
 	jsonToSend, _ := json.Marshal(commandToSend)
 
@@ -165,7 +164,6 @@ func sendCommand(input string, vis bool, server int) {
 		log.Println("write:", err)
 		return
 	}
-
 
 }
 
