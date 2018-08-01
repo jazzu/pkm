@@ -9,7 +9,7 @@ import (
 	"strconv"
 	"time"
 
-	"code.yensid.fi/pkm/caspar"
+	"code.yensid.fi/pkm/obs"
 	"code.yensid.fi/pkm/vmix"
 	"code.yensid.fi/tools"
 	"github.com/gorilla/mux"
@@ -21,7 +21,7 @@ var (
 )
 
 func Run() {
-	caspar.Configure()
+	obs.Configure()
 
 	listenAddress := tools.GetEnvParam("PKM_LISTEN_ADDRESS", "127.0.0.1:1999")
 	log.Print("PKM palvelin käynnistyy osoitteessa: " + listenAddress)
@@ -32,7 +32,9 @@ func Run() {
 	router.HandleFunc("/active_input/{input:[0-9]+}", ReceiveActiveInput)
 	http.Handle("/", router)
 
-	go vMixPoller(listenAddress)
+	//ei käytetä asm-s18
+	//go vMixPoller(listenAddress)
+
 	log.Fatal(http.ListenAndServe(listenAddress, nil))
 }
 
@@ -47,13 +49,13 @@ func ReceiveGameStatus(w http.ResponseWriter, r *http.Request) {
 	}
 	logComparisonJson(data)
 
-	if _, ok := caspar.Players["1"]; ok {
-		caspar.PopulatePlayerConf(string(rawPost))
+	if _, ok := obs.Players["1"]; ok {
+		obs.PopulatePlayerConf(string(rawPost))
 	}
 
 	// Varmista että JSON:issa tuli mukana pelaajatieto ja yritä vaihtaa kuvaa ainoastaan jos se löytyy
 	if data.PlayerID != nil {
-		caspar.SwitchPlayer(ActiveInput, data.PlayerID.SteamID)
+		obs.SwitchPlayer(ActiveInput, data.PlayerID.SteamID)
 	}
 	w.WriteHeader(http.StatusOK)
 }
@@ -66,15 +68,15 @@ func ReceiveActiveInput(w http.ResponseWriter, r *http.Request) {
 	PreviousInput = ActiveInput
 	ActiveInput, err = strconv.ParseInt(vars["input"], 10, 64)
 
-	if PreviousInput != ActiveInput {
-		log.Printf("vMix input vaihtui %d -> %d", PreviousInput, ActiveInput)
+	//if PreviousInput != ActiveInput {
+	//	log.Printf("vMix input vaihtui %d -> %d", PreviousInput, ActiveInput)
 
-		// Jos vMixin input on vaihtunut edellisestä pollauksesta
-		// ja uusi input ei ole observer, tyhjennä CasparCG:n ulostulo
-		if caspar.Servers[ActiveInput] == 0 {
-			caspar.ClearOut()
-		}
-	}
+	// Jos vMixin input on vaihtunut edellisestä pollauksesta
+	// ja uusi input ei ole observer, tyhjennä CasparCG:n ulostulo
+	//	if obs.Servers[ActiveInput] == 0 {
+	//			obs.ClearOut()
+	//		}
+	//	}
 
 	if err != nil {
 		log.Fatal("Virheellinen GET-parametri: ", err)
