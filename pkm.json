@@ -1,8 +1,9 @@
 {
 
-	"servers":
+	"cameraServers":
 	[
-		{"vmix-input": 2, "observer": 1}
+		{"ip": "127.0.0.1", "port": "4444"},
+		{"ip": "10.39.1.55", "port": "4444"}
 	],
 	"players":
 	{
@@ -16,10 +17,5 @@
 		"8": {"server": 0, "channel": "2-8"},
 		"9": {"server": 0, "channel": "2-9"},
 		"10": {"server": 0, "channel": "2-10"}
-	},
-	"commands":	{
-		"select_player": "PLAY %s route://%s",
-		"clear_layer": "CLEAR %s",
-		"play_clip": "PLAY %s %s"
 	}
 }

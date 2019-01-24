@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 
 	"log"
-	"net"
+	//"net"
 	"net/url"
 	"os"
 	"strings"
@@ -17,28 +17,19 @@ import (
 )
 
 type (
-	casparConfig struct {
-		address  string
-		amcpPort string
-		oscPort  string
-		out      string
-		amcpConn net.Conn
-	}
-
 	Player struct {
 		Server  int    `json:"server"`
 		Channel string `json:"channel"`
 	}
 
-	Server struct {
-		VMixInput int64 `json:"vmix-input"`
-		Observer  int64 `json:"observer"`
+	CameraServer struct {
+		Ip     string `json:"ip"`
+		Port   string `json:"port"`
 	}
 
 	ConfigFile struct {
-		Servers  []Server          `json:"servers"`
+		CameraServers  []CameraServer `json:"cameraServers"`
 		Players  map[string]Player `json:"players"`
-		Commands map[string]string `json:"commands"`
 	}
 
 	obsConfig struct {
@@ -61,7 +52,7 @@ var (
 	obs            []obsConfig
 	commands       map[string]string
 	Players        map[string]Player
-	Servers        map[int64]int64 // vMix -> Caspar mapping
+	CameraServers  map[string]string
 	previousPlayer string
 	previousInput  int
 	messageID      int
@@ -69,34 +60,23 @@ var (
 
 func Configure() {
 
-	obs = make([]obsConfig, 2)
-
-	obs[0].address = GetEnvParam("OBS_0_ADDRESS", "10.39.1.83")
-	obs[0].port = GetEnvParam("OBS_0_PORT", "4444")
-
-	obs[1].address = GetEnvParam("OBS_1_ADDRESS", "127.0.0.1")
-	obs[1].port = GetEnvParam("OBS_1_PORT", "4444")
-
 	conffile := ConfigFile{}
-	confFilename := GetEnvParam("CASPAR_CONFIG", "pkm.json")
+	confFilename := GetEnvParam("PKM_CONFIG", "pkm.json")
 	readConfig(&conffile, confFilename)
 
-	Servers = make(map[int64]int64)
-	for _, v := range conffile.Servers {
-		Servers[v.VMixInput] = v.Observer
+	obs = make([]obsConfig, 2) //tästä kovakoodaus pois
+	for i, v := range conffile.CameraServers {
+		log.Printf("%d:%s",i,v.Ip)
+		obs[i].address = v.Ip
+	  obs[i].port = v.Port
+		connectOBS(obs[i].address, obs[i].port, 0)
 	}
 
 	Players = make(map[string]Player)
 	Players = conffile.Players
 
-	commands = make(map[string]string)
-	commands = conffile.Commands
 
 	messageID = 0
-
-	connectOBS(obs[0].address, obs[0].port, 0)
-	connectOBS(obs[1].address, obs[1].port, 1)
-
 	previousPlayer = ""
 
 	log.Printf("load valmis")
@@ -125,12 +105,6 @@ func PopulatePlayerConf(jsonData string) {
 // SwitchPlayer käskee tunnettuja palvelimia vaihtamaan inputtia, samat komennot jokaiselle.
 //Inputtien nimet pitää olla OBS:ssä uniikkeja jotta vain oikea kone reagoi (muut antavat virheen josta ei välitetä)
 func SwitchPlayer(input int64, currentPlayer string) {
-
-	//ei taideta käyttää ASM-S18
-	//if Servers[input] == 0 {
-	//	return
-	//}
-
 
 	if Players[currentPlayer].Channel == "" {
 		log.Printf("Pelaajatunnusta %s ei löytynyt. Pelaajakuvan vaihto ei onnistu.", currentPlayer)
@@ -194,6 +168,7 @@ func connectOBS(address string, port string, server int) {
 	obs[server].conn = c
 	if err != nil {
 		log.Printf("Yhteys OBS-palvelimeen %s:%s epäonnistui: %s", address, port, err)
+		return
 	}
 	log.Printf("Yhteys OBS-palvelimeen %s:%s avattu", address, port)
 
