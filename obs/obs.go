@@ -9,8 +9,8 @@ import (
 	"os"
 	"strings"
 
-	. "github.com/sytem/pkm/tools"
 	"github.com/jmoiron/jsonq"
+	. "github.com/sytem/pkm/tools"
 	"strconv"
 
 	"github.com/gorilla/websocket"
@@ -41,30 +41,30 @@ type (
 		Commands map[string]string `json:"commands"`
 	}
 
-	obsConfig  struct {
-		address  string
-		port string
-		conn *websocket.Conn
+	obsConfig struct {
+		address string
+		port    string
+		conn    *websocket.Conn
 	}
 
 	// OBS:lle lähetettävä komento
 	SetSceneItemRender struct {
 		RequestType string `json:"request-type"`
-		MessageId string `json:"message-id"`
-		Source	string	 `json:"source"`
-		Render	bool  		`json:"render"`
-		SceneName	string 	`json:"scene-name"`
+		MessageId   string `json:"message-id"`
+		Source      string `json:"source"`
+		Render      bool   `json:"render"`
+		SceneName   string `json:"scene-name"`
 	}
 )
 
 var (
-	obs						 []obsConfig
+	obs            []obsConfig
 	commands       map[string]string
 	Players        map[string]Player
 	Servers        map[int64]int64 // vMix -> Caspar mapping
 	previousPlayer string
 	previousInput  int
-	messageID 		 int
+	messageID      int
 )
 
 func Configure() {
@@ -126,12 +126,10 @@ func PopulatePlayerConf(jsonData string) {
 //Inputtien nimet pitää olla OBS:ssä uniikkeja jotta vain oikea kone reagoi (muut antavat virheen josta ei välitetä)
 func SwitchPlayer(input int64, currentPlayer string) {
 
-  //ei taideta käyttää ASM-S18
+	//ei taideta käyttää ASM-S18
 	//if Servers[input] == 0 {
 	//	return
 	//}
-
-
 
 	if Players[currentPlayer].Channel == "" {
 		log.Printf("Pelaajatunnusta %s ei löytynyt. Pelaajakuvan vaihto ei onnistu.", currentPlayer)
@@ -172,10 +170,10 @@ func sendCommand(input string, vis bool, server int) {
 
 	commandToSend := &SetSceneItemRender{
 		RequestType: "SetSceneItemRender",
-		MessageId: strconv.Itoa(messageID),
-		Source: input, // cam1..cam10
-		Render: vis,
-		SceneName: "Scene1"}
+		MessageId:   strconv.Itoa(messageID),
+		Source:      input, // cam1..cam10
+		Render:      vis,
+		SceneName:   "Scene1"}
 
 	jsonToSend, _ := json.Marshal(commandToSend)
 
@@ -184,7 +182,6 @@ func sendCommand(input string, vis bool, server int) {
 		log.Println("write:", err)
 		return
 	}
-
 
 }
 
@@ -198,6 +195,19 @@ func connectOBS(address string, port string, server int) {
 		log.Printf("Yhteys OBS-palvelimeen %s:%s epäonnistui: %s", address, port, err)
 	}
 	log.Printf("Yhteys OBS-palvelimeen %s:%s avattu", address, port)
+
+	sendCommand("cam1", false, server)
+	sendCommand("cam2", false, server)
+	sendCommand("cam3", false, server)
+	sendCommand("cam4", false, server)
+	sendCommand("cam5", false, server)
+	sendCommand("cam6", false, server)
+	sendCommand("cam7", false, server)
+	sendCommand("cam8", false, server)
+	sendCommand("cam9", false, server)
+	sendCommand("cam10", false, server)
+
+	log.Printf("tyhjennetty")
 }
 
 func readConfig(conf *ConfigFile, filename string) {

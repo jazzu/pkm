@@ -9,10 +9,10 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/sytem/pkm/obs"
-	"github.com/sytem/pkm/vmix"
-	"github.com/sytem/pkm/tools"
 	"github.com/gorilla/mux"
+	"github.com/sytem/pkm/obs"
+	"github.com/sytem/pkm/tools"
+	"github.com/sytem/pkm/vmix"
 )
 
 var (
@@ -32,7 +32,7 @@ func Run() {
 	router.HandleFunc("/active_input/{input:[0-9]+}", ReceiveActiveInput)
 	http.Handle("/", router)
 
-  //go vMixPoller(listenAddress)
+	//go vMixPoller(listenAddress)
 
 	go testPoller(listenAddress)
 	log.Fatal(http.ListenAndServe(listenAddress, nil))
@@ -71,12 +71,12 @@ func ReceiveActiveInput(w http.ResponseWriter, r *http.Request) {
 	//if PreviousInput != ActiveInput {
 	//	log.Printf("vMix input vaihtui %d -> %d", PreviousInput, ActiveInput)
 
-		// Jos vMixin input on vaihtunut edellisestä pollauksesta
-		// ja uusi input ei ole observer, tyhjennä CasparCG:n ulostulo
+	// Jos vMixin input on vaihtunut edellisestä pollauksesta
+	// ja uusi input ei ole observer, tyhjennä CasparCG:n ulostulo
 	//	if obs.Servers[ActiveInput] == 0 {
-//			obs.ClearOut()
-//		}
-//	}
+	//			obs.ClearOut()
+	//		}
+	//	}
 
 	if err != nil {
 		log.Fatal("Virheellinen GET-parametri: ", err)
