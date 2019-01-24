@@ -7,15 +7,6 @@
 	],
 	"players":
 	{
-		"1": {"server": 0, "channel": "2-1"},
-		"2": {"server": 0, "channel": "2-2"},
-		"3": {"server": 0, "channel": "2-3"},
-		"4": {"server": 0, "channel": "2-4"},
-		"5": {"server": 0, "channel": "2-5"},
-		"6": {"server": 0, "channel": "2-6"},
-		"7": {"server": 0, "channel": "2-7"},
-		"8": {"server": 0, "channel": "2-8"},
-		"9": {"server": 0, "channel": "2-9"},
-		"10": {"server": 0, "channel": "2-10"}
+		"1": {"player_name": "foo", "server": 0, "channel": ""}
 	}
 }

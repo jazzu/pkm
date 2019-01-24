@@ -8,9 +8,11 @@ import (
 	"net/url"
 	"os"
 	"strings"
+	"flag"
+	"fmt"
 
 	"github.com/jmoiron/jsonq"
-	. "github.com/sytem/pkm/tools"
+	//. "github.com/sytem/pkm/tools"
 	"strconv"
 
 	"github.com/gorilla/websocket"
@@ -18,7 +20,8 @@ import (
 
 type (
 	Player struct {
-		Server  int    `json:"server"`
+		PlayerName string `json:"player_name"`
+		//Server  int    `json:"server"`
 		Channel string `json:"channel"`
 	}
 
@@ -60,9 +63,19 @@ var (
 
 func Configure() {
 
+	confFilenamePtr := flag.String("conf", "pkm.json", "json-file for basic configuration")
+	teamAPtr := flag.String("A", "team1.json", "json-file for team A")
+	teamBPtr := flag.String("B", "team2.json", "json-file for team B")
+	flag.Parse()
+
 	conffile := ConfigFile{}
-	confFilename := GetEnvParam("PKM_CONFIG", "pkm.json")
-	readConfig(&conffile, confFilename)
+	readConfig(&conffile, *confFilenamePtr)
+
+	teamAfile := ConfigFile{}
+	readConfig(&teamAfile, *teamAPtr)
+
+	teamBfile := ConfigFile{}
+	readConfig(&teamBfile, *teamBPtr)
 
 	obs = make([]obsConfig, 2) //tästä kovakoodaus pois
 	for i, v := range conffile.CameraServers {
@@ -75,9 +88,23 @@ func Configure() {
 	Players = make(map[string]Player)
 	Players = conffile.Players
 
+  fmt.Println("Load players:")
+	//yhdistetään eri tiedostot yhteen
+	for k, v := range teamAfile.Players {
+			 fmt.Printf("%s -> %s\n", k, v)
+			 Players[k] = v
+	 }
+
+	for k, v := range teamBfile.Players {
+				fmt.Printf("%s -> %s\n", k, v)
+				Players[k] = v
+		}
 
 	messageID = 0
 	previousPlayer = ""
+
+
+
 
 	log.Printf("load valmis")
 }
@@ -95,7 +122,7 @@ func PopulatePlayerConf(jsonData string) {
 	var n int = 1
 	for k := range obj {
 		plr := Player{}
-		plr.Server = Players[strconv.Itoa(n)].Server
+		//plr.Server = Players[strconv.Itoa(n)].Server
 		plr.Channel = Players[strconv.Itoa(n)].Channel
 		plrs[k] = plr
 		n++
