@@ -32,9 +32,6 @@ func Run() {
 	router.HandleFunc("/active_input/{input:[0-9]+}", ReceiveActiveInput)
 	http.Handle("/", router)
 
-	//go vMixPoller(listenAddress)
-
-	go testPoller(listenAddress)
 	log.Fatal(http.ListenAndServe(listenAddress, nil))
 }
 
@@ -119,17 +116,5 @@ func vMixPoller(listenAddress string) {
 			log.Printf("VMixin tilatiedon kirjoitus osoitteeseen %s epäonnistui: %s", targetUrl, err)
 		}
 		resp.Body.Close()
-	}
-}
-
-func testPoller(listenAddress string) {
-
-	testID := 100
-
-	for {
-		time.Sleep(time.Millisecond * 1000)
-		obs.SwitchPlayer(1, strconv.Itoa(testID)) //activeinput = 1 koska ei käytössä...
-		log.Print("kokeillaan vaihtaa pelaajaan id:" + strconv.Itoa(testID))
-		testID += 100
 	}
 }

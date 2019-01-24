@@ -1,3 +1,5 @@
+obs.go
+
 package obs
 
 import (
@@ -9,8 +11,8 @@ import (
 	"os"
 	"strings"
 
+	. "code.yensid.fi/tools"
 	"github.com/jmoiron/jsonq"
-	. "github.com/sytem/pkm/tools"
 	"strconv"
 
 	"github.com/gorilla/websocket"
@@ -71,10 +73,10 @@ func Configure() {
 
 	obs = make([]obsConfig, 2)
 
-	obs[0].address = GetEnvParam("OBS_0_ADDRESS", "10.39.1.83")
+	obs[0].address = GetEnvParam("OBS_0_ADDRESS", "85.188.59.190")
 	obs[0].port = GetEnvParam("OBS_0_PORT", "4444")
 
-	obs[1].address = GetEnvParam("OBS_1_ADDRESS", "127.0.0.1")
+	obs[1].address = GetEnvParam("OBS_1_ADDRESS", "85.188.59.209")
 	obs[1].port = GetEnvParam("OBS_1_PORT", "4444")
 
 	conffile := ConfigFile{}
@@ -96,10 +98,11 @@ func Configure() {
 
 	connectOBS(obs[0].address, obs[0].port, 0)
 	connectOBS(obs[1].address, obs[1].port, 1)
-
+	
 	previousPlayer = ""
-
+	
 	log.Printf("load valmis")
+
 }
 
 func PopulatePlayerConf(jsonData string) {
@@ -131,6 +134,7 @@ func SwitchPlayer(input int64, currentPlayer string) {
 	//	return
 	//}
 
+	
 
 	if Players[currentPlayer].Channel == "" {
 		log.Printf("Pelaajatunnusta %s ei löytynyt. Pelaajakuvan vaihto ei onnistu.", currentPlayer)
@@ -139,7 +143,7 @@ func SwitchPlayer(input int64, currentPlayer string) {
 		previousPlayer = "0"
 		return
 	}
-
+	
 	if previousPlayer == "" {
 		log.Printf("nollataan")
 		//tähän reset all pimeäksi, koska muuten saadaan tuplia
@@ -148,9 +152,9 @@ func SwitchPlayer(input int64, currentPlayer string) {
 			sendCommand(player.Channel, false, 1)
 		}
 	}
-
+	
 	if currentPlayer != previousPlayer {
-
+	
 		log.Printf("Observattava pelaaja vaihtui %d -> %d", previousPlayer, currentPlayer)
 		//tässä voisi olla myös for-luuppi käydä kaikki yhdistetyt serverit läpi
 		//uusi pelaaja näkyviin
@@ -196,19 +200,6 @@ func connectOBS(address string, port string, server int) {
 		log.Printf("Yhteys OBS-palvelimeen %s:%s epäonnistui: %s", address, port, err)
 	}
 	log.Printf("Yhteys OBS-palvelimeen %s:%s avattu", address, port)
-
-	sendCommand("cam1", false, server)
-	sendCommand("cam2", false, server)
-	sendCommand("cam3", false, server)
-	sendCommand("cam4", false, server)
-	sendCommand("cam5", false, server)
-	sendCommand("cam6", false, server)
-	sendCommand("cam7", false, server)
-	sendCommand("cam8", false, server)
-	sendCommand("cam9", false, server)
-	sendCommand("cam10", false, server)
-
-	log.Printf("tyhjennetty")
 }
 
 func readConfig(conf *ConfigFile, filename string) {
