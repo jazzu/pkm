@@ -3,16 +3,14 @@ package obs
 import (
 	"encoding/json"
 
+	"flag"
+	"fmt"
 	"log"
-	//"net"
 	"net/url"
 	"os"
 	"strings"
-	"flag"
-	"fmt"
 
 	"github.com/jmoiron/jsonq"
-	//. "github.com/sytem/pkm/tools"
 	"strconv"
 
 	"github.com/gorilla/websocket"
@@ -26,13 +24,13 @@ type (
 	}
 
 	CameraServer struct {
-		Ip     string `json:"ip"`
-		Port   string `json:"port"`
+		Ip   string `json:"ip"`
+		Port string `json:"port"`
 	}
 
 	ConfigFile struct {
-		CameraServers  []CameraServer `json:"cameraServers"`
-		Players  map[string]Player `json:"players"`
+		CameraServers []CameraServer    `json:"cameraServers"`
+		Players       map[string]Player `json:"players"`
 	}
 
 	obsConfig struct {
@@ -79,32 +77,29 @@ func Configure() {
 
 	obs = make([]obsConfig, 2) //tästä kovakoodaus pois
 	for i, v := range conffile.CameraServers {
-		log.Printf("%d:%s",i,v.Ip)
+		log.Printf("%d:%s", i, v.Ip)
 		obs[i].address = v.Ip
-	  obs[i].port = v.Port
+		obs[i].port = v.Port
 		connectOBS(obs[i].address, obs[i].port, 0)
 	}
 
 	Players = make(map[string]Player)
 	Players = conffile.Players
 
-  fmt.Println("Load players:")
+	fmt.Println("Load players:")
 	//yhdistetään eri tiedostot yhteen
 	for k, v := range teamAfile.Players {
-			 fmt.Printf("%s -> %s\n", k, v)
-			 Players[k] = v
-	 }
+		fmt.Printf("%s -> %s\n", k, v)
+		Players[k] = v
+	}
 
 	for k, v := range teamBfile.Players {
-				fmt.Printf("%s -> %s\n", k, v)
-				Players[k] = v
-		}
+		fmt.Printf("%s -> %s\n", k, v)
+		Players[k] = v
+	}
 
 	messageID = 0
 	previousPlayer = ""
-
-
-
 
 	log.Printf("load valmis")
 }
