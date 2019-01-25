@@ -12,7 +12,7 @@ Kaksi videoserveriä lähettävät kuvaa NDI:llä vmixille tms kuvamikserille, a
 [Pelaaja #5] ───┘               │                    │
                             websocket              │
                                 │                    ↓
-┃Observer┠─────── JSON ───→┃PKM kone┠ ←── XML ──────[vMix]
+┃Observer┠─────── JSON ───→┃PKM kone┠             [vMix]
                                 │                    ↑
                             websocket              │
 [Pelaaja #6] ───┐               │                    │
@@ -36,9 +36,16 @@ Websocket plugin on oletuksena portissa 4444, tällähetkellä ei autentikaatiot
 
 Observer-koneelle asennetaan GSI-asetustiedosto, peli tarvii pyöriä samassa verkossa tai palomuurissa pitää olla aukko peliverkosta PKM-koneen websocket-porttiin (oletus 1999)
 
-Asetustiedostoon pelaajien steamID:t SteamID64-muodossa, järjestyksellä ei ole väliä.
+Asetustiedostoon pelaajien steamID:t SteamID64-muodossa, tiedosto per joukkoe
+
+serverin käynnistys: ./pkm -A team2.json -B team1.json
 
 # TODO
-- [ ] Tee parempi README.md
-- [ ] siirrä kovakoodatut asiat asetustiedostoon
-- [ ] käyttöliittymä käsiohjaukseen ja tiimien valintaan
+- [x] Tee parempi README.md
+- [x] siirrä kovakoodatut asiat asetustiedostoon
+- [ ] käyttöliittymä käsiohjaukseen 
+- [x] ja tiimien valintaan
+- [ ] siirrä konfiguraatiologiikka obs.go:sta server.go:hon
+- [ ] korjaa obs.go:ssa olevat todo-kommentit
+- [ ] lisää GSI-tiedosto tänne
+- [ ] lisää obs-mallifilet tänne
