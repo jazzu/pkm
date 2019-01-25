@@ -8,15 +8,15 @@ Kaksi videoserveriä lähettävät kuvaa NDI:llä vmixille tms kuvamikserille, a
 [Pelaaja #1] ───┐
 [Pelaaja #2] ───┤
 [Pelaaja #3] ───┼ USB ─→┃videoserveri A┠── NDI ─┐
-[Pelaaja #4] ───┤               ↑                    │
-[Pelaaja #5] ───┘               │                    │
-                            websocket              │
-                                │                    ↓
-┃Observer┠─────── JSON ───→┃PKM kone┠             [vMix]
-                                │                    ↑
-                            websocket              │
-[Pelaaja #6] ───┐               │                    │
-[Pelaaja #7] ───┤               ↓                    │
+[Pelaaja #4] ───┤               ↑               │
+[Pelaaja #5] ───┘               │               │
+                            websocket           │
+                                │               ↓
+┃Observer┠─────── JSON ───→┃PKM kone┃         [vMix]
+                                │               ↑
+                            websocket           │
+[Pelaaja #6] ───┐               │               │
+[Pelaaja #7] ───┤               ↓               │
 [Pelaaja #8] ───┼ USB ─→┃videoserveri B┠── NDI ─┘
 [Pelaaja #9] ───┤
 [Pelaaja #10] ──┘
@@ -45,7 +45,7 @@ serverin käynnistys: ./pkm -A team2.json -B team1.json
 - [x] siirrä kovakoodatut asiat asetustiedostoon
 - [ ] käyttöliittymä käsiohjaukseen 
 - [x] ja tiimien valintaan
-- [ ] siirrä konfiguraatiologiikka obs.go:sta server.go:hon
+- [ ] siirrä konfiguraatiologiikka obs.go:sta server.go:hon
 - [ ] korjaa obs.go:ssa olevat todo-kommentit
 - [ ] lisää GSI-tiedosto tänne
 - [ ] lisää obs-mallifilet tänne
