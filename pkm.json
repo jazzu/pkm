@@ -2,10 +2,24 @@
 	"cameraServers":
 	[
 		{"ip": "127.0.0.1", "port": "4444"},
-		{"ip": "10.39.1.55", "port": "4444"}
+		{"ip": "localhost", "port": "4444"}
 	],
 	"players":
 	{
 		"00000000000000000": {"player_name": "ignore1", "server": 0, "channel": "", "place": 0}
+	},
+	"cameras":
+	{
+		"A1": "cam1",
+		"A2": "cam2",
+		"A3": "cam3",
+		"A4": "cam4",
+		"A5": "cam5",
+
+		"B1": "cam6",
+		"B2": "cam7",
+		"B3": "cam8",
+		"B4": "cam9",
+		"B5": "cam10"
 	}
 }

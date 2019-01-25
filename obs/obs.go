@@ -21,6 +21,7 @@ type (
 		PlayerName string `json:"player_name"`
 		//Server  int    `json:"server"`
 		Channel string `json:"channel"`
+		Place int `json:"place"`
 	}
 
 	CameraServer struct {
@@ -31,6 +32,7 @@ type (
 	ConfigFile struct {
 		CameraServers []CameraServer    `json:"cameraServers"`
 		Players       map[string]Player `json:"players"`
+		Cameras 			map[string]string `json:"cameras"`
 	}
 
 	obsConfig struct {
@@ -53,6 +55,7 @@ var (
 	obs            []obsConfig
 	commands       map[string]string
 	Players        map[string]Player
+	Cameras				 map[string]string
 	CameraServers  map[string]string
 	previousPlayer string
 	previousInput  int
@@ -86,20 +89,29 @@ func Configure() {
 	Players = make(map[string]Player)
 	Players = conffile.Players
 
+	Cameras = make(map[string]string)
+	Cameras = conffile.Cameras
+
 	fmt.Println("Load players:")
 	//yhdistetään eri tiedostot yhteen
 	for k, v := range teamAfile.Players {
-		fmt.Printf("%s -> %s\n", k, v)
+		fmt.Printf("%s -> %s : %d\n", k, v.PlayerName,v.Place)
+		var camera = "A" + strconv.Itoa(v.Place)
+		v.Channel = Cameras[camera]
 		Players[k] = v
 	}
 
 	for k, v := range teamBfile.Players {
-		fmt.Printf("%s -> %s\n", k, v)
+		fmt.Printf("%s -> %s : %d\n", k, v.PlayerName,v.Place)
+		var camera = "B" + strconv.Itoa(v.Place)
+		v.Channel = Cameras[camera]
 		Players[k] = v
 	}
 
 	messageID = 0
 	previousPlayer = ""
+
+	fmt.Println(Players)
 
 	log.Printf("load valmis")
 }
