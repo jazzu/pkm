@@ -104,15 +104,17 @@ func Configure() {
 
 	for k, v := range teamBfile.Players {
 		fmt.Printf("%s -> %s : %d\n", k, v.PlayerName,v.Place)
+		//todo poikkeus paikka0
 		var camera = "B" + strconv.Itoa(v.Place)
 		v.Channel = Cameras[camera]
+		log.print("set channel to :"+ v.Channel )
 		Players[k] = v
 	}
 
 	messageID = 0
 	previousPlayer = ""
 
-	//fmt.Println(Players)
+	fmt.Println(Players)
 
 	log.Printf("load valmis")
 }
@@ -144,6 +146,7 @@ func PopulatePlayerConf(jsonData string) {
 //todo: silmukoita palvelimista, vai oma funktio joka lähettää kaikille
 func SwitchPlayer(input int64, currentPlayer string) {
 
+log.Print(Players[currentPlayer].Channel)
 	if Players[currentPlayer].Channel == "" {
 		// todo formaatti sellaiseksi että voi copypasteta suoraan conffiin
 		log.Printf("Pelaajatunnusta %s ei löytynyt. Pelaajakuvan vaihto ei onnistu.", currentPlayer)
@@ -179,6 +182,9 @@ func SwitchPlayer(input int64, currentPlayer string) {
 }
 
 func sendCommand(input string, vis bool, server int) {
+
+	//debug ilman servereitä
+	return
 
 	messageID++
 

@@ -53,6 +53,8 @@ func ReceiveGameStatus(w http.ResponseWriter, r *http.Request) {
 	// Varmista että JSON:issa tuli mukana pelaajatieto ja yritä vaihtaa kuvaa ainoastaan jos se löytyy
 	if data.PlayerID != nil {
 		obs.SwitchPlayer(ActiveInput, data.PlayerID.SteamID)
+		log.Print("\"" + data.PlayerID.SteamID + "\": {\"player_name\": \"" + data.PlayerID.Name + "\", \"place\": 0},")
+
 	}
 	w.WriteHeader(http.StatusOK)
 }
