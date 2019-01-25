@@ -1,11 +1,10 @@
 {
-
 "players":
-{
-  "76561198319822409": {"player_name": "yle", "server": 0, "channel": "cam6"},
-  "76561198304546396": {"player_name": "zajppix", "server": 0, "channel": "cam2"},
-  "76561198013708469": {"player_name": "kjjdhdsghf", "server": 0, "channel": "cam1"},
-  "76561198262719725": {"player_name": "sgfgsdfg", "server": 0, "channel": "cam4"},
-  "76561198163856205":  {"player_name": "sdfgfgs", "server": 0, "channel": "cam5"}
-}
+  {
+    "76561198293547781": {"player_name": "A-eka", "server": 0, "channel": "cam6", "place": 1},
+    "76561198293547782": {"player_name": "A-toka", "server": 0, "channel": "cam2", "place": 2},
+    "76561198293547783": {"player_name": "A-kolmas", "server": 0, "channel": "cam1", "place": 3},
+    "76561198293547784": {"player_name": "A-neljäs", "server": 0, "channel": "cam4", "place": 4},
+    "76561198293547785": {"player_name": "A-viides", "server": 0, "channel": "cam5", "place": 5}
+  }
 }

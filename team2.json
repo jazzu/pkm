@@ -1,10 +1,10 @@
 {
 "players":
   {
-    "76561198193947878":    {"player_name": "zappix", "server": 0, "channel": "cam3"},
-    "76561198058206060":    {"player_name": "fgg", "server": 0, "channel": "cam7"},
-    "76561198310189817":  {"player_name": "zahfhsppix", "server": 0, "channel": "cam8"},
-    "76561198058354186":  {"player_name": "adffe", "server": 0, "channel": "cam9"},
-    "555444445":  {"player_name": "zaphyyhpix", "server": 0, "channel": "cam10"}
+    "76561198293547771":  {"player_name": "B-eka", "server": 0, "channel": "cam3", "place": 1},
+    "76561198293547772":  {"player_name": "B-toka", "server": 0, "channel": "cam7", "place": 2},
+    "76561198293547773":  {"player_name": "B-kolmas", "server": 0, "channel": "cam8", "place": 3},
+    "76561198293547774":  {"player_name": "B-neljäs", "server": 0, "channel": "cam9", "place": 4},
+    "76561198293547775":  {"player_name": "B-viides", "server": 0, "channel": "cam10", "place": 5}
   }
 }

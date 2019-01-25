@@ -1,5 +1,4 @@
 {
-
 	"cameraServers":
 	[
 		{"ip": "127.0.0.1", "port": "4444"},
@@ -7,6 +6,6 @@
 	],
 	"players":
 	{
-		"1": {"player_name": "foo", "server": 0, "channel": ""}
+		"00000000000000000": {"player_name": "ignore1", "server": 0, "channel": "", "place": 0}
 	}
 }
