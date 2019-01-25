@@ -20,7 +20,7 @@ type (
 	Player struct {
 		PlayerName string `json:"player_name"`
 		//Server  int    `json:"server"`
-		Channel string `json:"channel"`
+		Channel string `json:"channel"` //todo: siivoa json-formaatti
 		Place int `json:"place"`
 	}
 
@@ -33,6 +33,7 @@ type (
 		CameraServers []CameraServer    `json:"cameraServers"`
 		Players       map[string]Player `json:"players"`
 		Cameras 			map[string]string `json:"cameras"`
+		//todo: pkm listen port
 	}
 
 	obsConfig struct {
@@ -78,7 +79,7 @@ func Configure() {
 	teamBfile := ConfigFile{}
 	readConfig(&teamBfile, *teamBPtr)
 
-	obs = make([]obsConfig, 2) //tästä kovakoodaus pois
+	obs = make([]obsConfig, 2) //todo: tästä kovakoodaus pois
 	for i, v := range conffile.CameraServers {
 		log.Printf("%d:%s", i, v.Ip)
 		obs[i].address = v.Ip
@@ -111,11 +112,12 @@ func Configure() {
 	messageID = 0
 	previousPlayer = ""
 
-	fmt.Println(Players)
+	//fmt.Println(Players)
 
 	log.Printf("load valmis")
 }
 
+// todo: tekeekö tämä mitään?
 func PopulatePlayerConf(jsonData string) {
 	plrs := make(map[string]Player)
 
@@ -138,9 +140,12 @@ func PopulatePlayerConf(jsonData string) {
 
 // SwitchPlayer käskee tunnettuja palvelimia vaihtamaan inputtia, samat komennot jokaiselle.
 //Inputtien nimet pitää olla OBS:ssä uniikkeja jotta vain oikea kone reagoi (muut antavat virheen josta ei välitetä)
+
+//todo: silmukoita palvelimista, vai oma funktio joka lähettää kaikille
 func SwitchPlayer(input int64, currentPlayer string) {
 
 	if Players[currentPlayer].Channel == "" {
+		// todo formaatti sellaiseksi että voi copypasteta suoraan conffiin
 		log.Printf("Pelaajatunnusta %s ei löytynyt. Pelaajakuvan vaihto ei onnistu.", currentPlayer)
 		sendCommand(Players[previousPlayer].Channel, false, 0)
 		sendCommand(Players[previousPlayer].Channel, false, 1)
@@ -160,7 +165,7 @@ func SwitchPlayer(input int64, currentPlayer string) {
 	if currentPlayer != previousPlayer {
 
 		log.Printf("Observattava pelaaja vaihtui %d -> %d", previousPlayer, currentPlayer)
-		//tässä voisi olla myös for-luuppi käydä kaikki yhdistetyt serverit läpi
+		//todo: tässä voisi olla myös for-luuppi käydä kaikki yhdistetyt serverit läpi
 		//uusi pelaaja näkyviin
 		sendCommand(Players[currentPlayer].Channel, true, 0)
 		sendCommand(Players[currentPlayer].Channel, true, 1)
@@ -206,6 +211,7 @@ func connectOBS(address string, port string, server int) {
 	}
 	log.Printf("Yhteys OBS-palvelimeen %s:%s avattu", address, port)
 
+ //todo loop
 	sendCommand("cam1", false, server)
 	sendCommand("cam2", false, server)
 	sendCommand("cam3", false, server)
