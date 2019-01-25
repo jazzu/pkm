@@ -10,12 +10,14 @@
 	},
 	"cameras":
 	{
+		"A0": "foo",
 		"A1": "cam1",
 		"A2": "cam2",
 		"A3": "cam3",
 		"A4": "cam4",
 		"A5": "cam5",
 
+		"B0": "bar",
 		"B1": "cam6",
 		"B2": "cam7",
 		"B3": "cam8",
