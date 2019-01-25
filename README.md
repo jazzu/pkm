@@ -34,9 +34,11 @@ Kaikki kamarat tuodaan tähän sceneen, nimettynä "cam1"-"cam10". Kameroiden nu
 
 Websocket plugin on oletuksena portissa 4444, tällähetkellä ei autentikaatiotukea koska järjestelmä on tarkoitettu vain suljetussa verkossa ajettavaksi.
 
-Observer-koneelle asennetaan GSI-asetustiedosto, peli tarvii pyöriä samassa verkossa tai palomuurissa pitää olla aukko peliverkosta PKM-koneen websocket-porttiin (oletus 1999)
+Observer-koneelle asennetaan kansioon steamapps\common\Counter-Strike Global Offensive\csgo\cfg GSI-asetustiedosto (esim gamestate_integration_pkm.cfg . Peli pitää pyöriä samassa verkossa tai palomuurissa pitää olla aukko peliverkosta PKM-koneen websocket-porttiin (oletus 1999)
 
-Asetustiedostoon pelaajien steamID:t SteamID64-muodossa, tiedosto per joukkoe
+Lisätiedot GSI:stä: https://developer.valvesoftware.com/wiki/Counter-Strike:_Global_Offensive_Game_State_Integration
+
+Asetustiedostoon pelaajien steamID:t SteamID64-muodossa, tiedosto per joukkue. Paikat myöskin pelaajien takaa vasemmalta laskien. Paikka 0 tarkoittaa että pelaajalla ei ole kameraa (tai kamera on esim väärin suunnattu ja sen takia halutaan hetkellisesti poistaa käytöstä: editoi fileä, ctrl+c ja restart)
 
 serverin käynnistys: ./pkm -A team2.json -B team1.json
 
@@ -47,5 +49,6 @@ serverin käynnistys: ./pkm -A team2.json -B team1.json
 - [x] ja tiimien valintaan
 - [ ] siirrä konfiguraatiologiikka obs.go:sta server.go:hon
 - [ ] korjaa obs.go:ssa olevat todo-kommentit
-- [ ] lisää GSI-tiedosto tänne
+- [x] lisää GSI-tiedosto tänne
 - [ ] lisää obs-mallifilet tänne
+- [ ] tuki eri formaateissa oleville steam-id:ille (esim https://github.com/MrWaggel/gosteamconv tai https://godoc.org/github.com/Acidic9/steam
