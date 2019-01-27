@@ -21,7 +21,7 @@ type (
 		PlayerName string `json:"player_name"`
 		//Server  int    `json:"server"`
 		Channel string `json:"channel"` //todo: siivoa json-formaatti
-		Place int `json:"place"`
+		Place   int    `json:"place"`
 	}
 
 	CameraServer struct {
@@ -32,7 +32,7 @@ type (
 	ConfigFile struct {
 		CameraServers []CameraServer    `json:"cameraServers"`
 		Players       map[string]Player `json:"players"`
-		Cameras 			map[string]string `json:"cameras"`
+		Cameras       map[string]string `json:"cameras"`
 		//todo: pkm listen port
 	}
 
@@ -56,11 +56,12 @@ var (
 	obs            []obsConfig
 	commands       map[string]string
 	Players        map[string]Player
-	Cameras				 map[string]string
+	Cameras        map[string]string
 	CameraServers  map[string]string
 	previousPlayer string
 	previousInput  int
 	messageID      int
+	testOnly       bool
 )
 
 func Configure() {
@@ -68,6 +69,7 @@ func Configure() {
 	confFilenamePtr := flag.String("conf", "pkm.json", "json-file for basic configuration")
 	teamAPtr := flag.String("A", "team1.json", "json-file for team A")
 	teamBPtr := flag.String("B", "team2.json", "json-file for team B")
+	testOnlyPtr := flag.Bool("test", false, "test server without sending commands")
 	flag.Parse()
 
 	conffile := ConfigFile{}
@@ -87,6 +89,8 @@ func Configure() {
 		connectOBS(obs[i].address, obs[i].port, 0)
 	}
 
+	testOnly = *testOnlyPtr
+
 	Players = make(map[string]Player)
 	Players = conffile.Players
 
@@ -96,18 +100,18 @@ func Configure() {
 	fmt.Println("Load players:")
 	//yhdistetään eri tiedostot yhteen
 	for k, v := range teamAfile.Players {
-		fmt.Printf("%s -> %s : %d\n", k, v.PlayerName,v.Place)
+		fmt.Printf("%s -> %s : %d\n", k, v.PlayerName, v.Place)
 		var camera = "A" + strconv.Itoa(v.Place)
 		v.Channel = Cameras[camera]
 		Players[k] = v
 	}
 
 	for k, v := range teamBfile.Players {
-		fmt.Printf("%s -> %s : %d\n", k, v.PlayerName,v.Place)
+		fmt.Printf("%s -> %s : %d\n", k, v.PlayerName, v.Place)
 		//todo poikkeus paikka0
 		var camera = "B" + strconv.Itoa(v.Place)
 		v.Channel = Cameras[camera]
-		log.print("set channel to :"+ v.Channel )
+		fmt.Println("set channel to :" + v.Channel)
 		Players[k] = v
 	}
 
@@ -146,7 +150,7 @@ func PopulatePlayerConf(jsonData string) {
 //todo: silmukoita palvelimista, vai oma funktio joka lähettää kaikille
 func SwitchPlayer(input int64, currentPlayer string) {
 
-log.Print(Players[currentPlayer].Channel)
+	log.Print(Players[currentPlayer].Channel)
 	if Players[currentPlayer].Channel == "" {
 		// todo formaatti sellaiseksi että voi copypasteta suoraan conffiin
 		log.Printf("Pelaajatunnusta %s ei löytynyt. Pelaajakuvan vaihto ei onnistu.", currentPlayer)
@@ -184,7 +188,10 @@ log.Print(Players[currentPlayer].Channel)
 func sendCommand(input string, vis bool, server int) {
 
 	//debug ilman servereitä
-	return
+	if testOnly {
+		log.Println("Not sending command, just test")
+		return
+	}
 
 	messageID++
 
@@ -217,7 +224,7 @@ func connectOBS(address string, port string, server int) {
 	}
 	log.Printf("Yhteys OBS-palvelimeen %s:%s avattu", address, port)
 
- //todo loop
+	//todo loop
 	sendCommand("cam1", false, server)
 	sendCommand("cam2", false, server)
 	sendCommand("cam3", false, server)
