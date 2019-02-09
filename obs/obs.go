@@ -86,7 +86,7 @@ func Configure() {
 		log.Printf("%d:%s", i, v.Ip)
 		obs[i].address = v.Ip
 		obs[i].port = v.Port
-		connectOBS(obs[i].address, obs[i].port, 0)
+		connectOBS(obs[i].address, obs[i].port, i)
 	}
 
 	testOnly = *testOnlyPtr
@@ -154,8 +154,8 @@ func SwitchPlayer(input int64, currentPlayer string) {
 	if Players[currentPlayer].Channel == "" {
 		// todo formaatti sellaiseksi että voi copypasteta suoraan conffiin
 		log.Printf("Pelaajatunnusta %s ei löytynyt. Pelaajakuvan vaihto ei onnistu.", currentPlayer)
-		sendCommand(Players[previousPlayer].Channel, false, 0)
-		sendCommand(Players[previousPlayer].Channel, false, 1)
+		//sendCommand(Players[previousPlayer].Channel, false, 0)
+		//sendCommand(Players[previousPlayer].Channel, false, 1)
 		previousPlayer = "0"
 		return
 	}
@@ -187,13 +187,11 @@ func SwitchPlayer(input int64, currentPlayer string) {
 
 func sendCommand(input string, vis bool, server int) {
 
-	//debug ilman servereitä
-	if testOnly {
-		log.Println("Not sending command, just test")
-		return
-	}
 
 	messageID++
+
+	//log.Println("foo")
+	//log.Println(server)
 
 	commandToSend := &SetSceneItemRender{
 		RequestType: "SetSceneItemRender",
@@ -203,6 +201,15 @@ func sendCommand(input string, vis bool, server int) {
 		SceneName:   "Scene1"}
 
 	jsonToSend, _ := json.Marshal(commandToSend)
+
+	//debug ilman servereitä
+	if testOnly {
+		log.Println("Not sending command, just test")
+		//log.Println(jsonToSend)
+		//log.Println(obs[server].conn)
+		return
+	}
+
 
 	err := obs[server].conn.WriteMessage(websocket.TextMessage, jsonToSend)
 	if err != nil {

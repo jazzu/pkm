@@ -93,14 +93,15 @@ func getRawPost(r *http.Request) (body []byte) {
 }
 
 func logComparisonJson(data GameData) {
-	log.Print("Tulkattu data:")
+	//log.Print("Tulkattu data:")
 	var checkData []byte
 	var err error
 	checkData, err = json.Marshal(data)
 	if err != nil {
 		log.Fatal("Vertailumerkkijonon muodostaminen epäonnistui: ", err)
+		log.Print(string(checkData))
+
 	}
-	log.Print(string(checkData))
 }
 
 // vMixPoller tarkistaa videomikserin tilan silmukassa ohjelman loppuun asti. Gorutiinina ajettava funktio kirjoittaa
