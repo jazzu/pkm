@@ -1,25 +1,27 @@
 {
-
-	"servers":
+	"cameraServers":
 	[
-		{"vmix-input": 2, "observer": 1}
+		{"ip": "127.0.0.1", "port": "4444"},
+		{"ip": "localhost", "port": "4444"}
 	],
 	"players":
 	{
-		"1": {"server": 0, "channel": "2-1"},
-		"2": {"server": 0, "channel": "2-2"},
-		"3": {"server": 0, "channel": "2-3"},
-		"4": {"server": 0, "channel": "2-4"},
-		"5": {"server": 0, "channel": "2-5"},
-		"6": {"server": 0, "channel": "2-6"},
-		"7": {"server": 0, "channel": "2-7"},
-		"8": {"server": 0, "channel": "2-8"},
-		"9": {"server": 0, "channel": "2-9"},
-		"10": {"server": 0, "channel": "2-10"}
+		"00000000000000000": {"player_name": "ignore1", "server": 0, "channel": "", "place": 0}
 	},
-	"commands":	{
-		"select_player": "PLAY %s route://%s",
-		"clear_layer": "CLEAR %s",
-		"play_clip": "PLAY %s %s"
+	"cameras":
+	{
+		"A0": "foo",
+		"A1": "cam1",
+		"A2": "cam2",
+		"A3": "cam3",
+		"A4": "cam4",
+		"A5": "cam5",
+
+		"B0": "bar",
+		"B1": "cam6",
+		"B2": "cam7",
+		"B3": "cam8",
+		"B4": "cam9",
+		"B5": "cam10"
 	}
 }

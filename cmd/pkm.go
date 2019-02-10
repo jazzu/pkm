@@ -1,7 +1,7 @@
 package main
 
 import (
-	"code.yensid.fi/pkm"
+	"github.com/sytem/pkm"
 )
 
 func main() {

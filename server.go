@@ -9,10 +9,10 @@ import (
 	"strconv"
 	"time"
 
-	"code.yensid.fi/pkm/obs"
-	"code.yensid.fi/pkm/vmix"
-	"code.yensid.fi/tools"
 	"github.com/gorilla/mux"
+	"github.com/sytem/pkm/obs"
+	"github.com/sytem/pkm/tools"
+	"github.com/sytem/pkm/vmix"
 )
 
 var (
@@ -31,9 +31,6 @@ func Run() {
 	router.HandleFunc("/", ReceiveGameStatus)
 	router.HandleFunc("/active_input/{input:[0-9]+}", ReceiveActiveInput)
 	http.Handle("/", router)
-
-	//ei käytetä asm-s18
-	//go vMixPoller(listenAddress)
 
 	log.Fatal(http.ListenAndServe(listenAddress, nil))
 }
@@ -56,6 +53,8 @@ func ReceiveGameStatus(w http.ResponseWriter, r *http.Request) {
 	// Varmista että JSON:issa tuli mukana pelaajatieto ja yritä vaihtaa kuvaa ainoastaan jos se löytyy
 	if data.PlayerID != nil {
 		obs.SwitchPlayer(ActiveInput, data.PlayerID.SteamID)
+		log.Print("\"" + data.PlayerID.SteamID + "\": {\"player_name\": \"" + data.PlayerID.Name + "\", \"place\": 0},")
+
 	}
 	w.WriteHeader(http.StatusOK)
 }
@@ -94,14 +93,15 @@ func getRawPost(r *http.Request) (body []byte) {
 }
 
 func logComparisonJson(data GameData) {
-	log.Print("Tulkattu data:")
+	//log.Print("Tulkattu data:")
 	var checkData []byte
 	var err error
 	checkData, err = json.Marshal(data)
 	if err != nil {
 		log.Fatal("Vertailumerkkijonon muodostaminen epäonnistui: ", err)
+		log.Print(string(checkData))
+
 	}
-	log.Print(string(checkData))
 }
 
 // vMixPoller tarkistaa videomikserin tilan silmukassa ohjelman loppuun asti. Gorutiinina ajettava funktio kirjoittaa
