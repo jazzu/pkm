@@ -1,4 +1,4 @@
-package pkm
+package server
 
 import (
 	"encoding/json"

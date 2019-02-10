@@ -1,4 +1,4 @@
-package pkm
+package server
 
 // FIXME: Tämä tyyppimäärittely on täysin overkill tällä hetkellä. Jokin https://github.com/jmoiron/jsonq kaltainen
 // palikka voisi palvella paremmin.

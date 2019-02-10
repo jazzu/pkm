@@ -9,11 +9,10 @@ import (
 	"net/url"
 	"os"
 	"strings"
-
-	"github.com/jmoiron/jsonq"
 	"strconv"
 
 	"github.com/gorilla/websocket"
+	"github.com/jmoiron/jsonq"
 )
 
 type (
@@ -54,12 +53,9 @@ type (
 
 var (
 	obs            []obsConfig
-	commands       map[string]string
 	Players        map[string]Player
 	Cameras        map[string]string
-	CameraServers  map[string]string
 	previousPlayer string
-	previousInput  int
 	messageID      int
 	testOnly       bool
 )
@@ -187,7 +183,6 @@ func SwitchPlayer(input int64, currentPlayer string) {
 
 func sendCommand(input string, vis bool, server int) {
 
-
 	messageID++
 
 	//log.Println("foo")
@@ -209,7 +204,6 @@ func sendCommand(input string, vis bool, server int) {
 		//log.Println(obs[server].conn)
 		return
 	}
-
 
 	err := obs[server].conn.WriteMessage(websocket.TextMessage, jsonToSend)
 	if err != nil {

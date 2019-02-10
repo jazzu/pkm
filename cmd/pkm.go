@@ -1,9 +1,9 @@
 package main
 
 import (
-	"github.com/sytem/pkm"
+	"github.com/sytem/pkm/server"
 )
 
 func main() {
-	pkm.Run()
+	server.Run()
 }
