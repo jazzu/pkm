@@ -23,28 +23,35 @@ Kaksi videoserveriä lähettävät kuvaa NDI:llä vmixille tms kuvamikserille, a
 ```
 
 # Riippuvuudet ja asennus
-1. OBS studio https://obsproject.com/
-2. NDI-plugin https://github.com/Palakis/obs-ndi
-3. NDI redist http://new.tk/NDIRedistV3
-4. websocket-plugin https://github.com/Palakis/obs-websocket
+1. OBS studio [https://obsproject.com/](https://obsproject.com/)
+2. NDI-plugin [https://github.com/Palakis/obs-ndi](https://github.com/Palakis/obs-ndi)
+3. NDI redist [http://new.tk/NDIRedistV3](http://new.tk/NDIRedistV3)
+4. websocket-plugin [https://github.com/Palakis/obs-websocket](https://github.com/Palakis/obs-websocket)
 
-Asenna ylläolevat molemmille videoservereille. Avaa/luo tyhjä OBS scene collection. Tarvitaan yksi scene, nimeltään "Scene1". Tälle aktivoidaan NDI dedicated output, suositeltavaa nimetä ne esim. "serverA" ja "serverB".
+Kummallekin videoserverille:
+  * Asenna ylläolevat.
+  * Avaa/luo tyhjä OBS scene collection. Tarvitaan yksi scene, nimeltään "Scene1"..
+  * Aktivoi scenelle NDI dedicated output, suositeltavaa nimetä ne esim. "serverA" ja "serverB". Tämä on se nimi jolla kuvalähteet näkyvät NDI:n ylitse.
 
-Kaikki kamarat tuodaan tähän sceneen, nimettynä "cam1"-"cam10". Kameroiden numerointi kannattaa aloittaa pelaajien selän takaa katsoen vasemmalta. Kaikki kamerat `fit-to-screen`, ja normaalitilassa kaikkien `visibility` pois päältä.
+Kaikki videoserveriin kytketyt kamerat tuodaan tähän sceneen nimettynä "cam1"-"cam5" ensimmäisellä ja "cam1"-"cam10" toisella serverillä. Kameroiden numerointi kannattaa aloittaa pelaajien selän takaa katsoen vasemmalta. Kaikki kamerat asetetaan `fit-to-screen` tilaan, ja normaalitilassa kaikkien `visibility` pois päältä. Myös webbikameroiden kuva-/videoasetukset kannattaa tarkistaa optimaalisen kuvanlaadun saamiseksi.
 
-Websocket-plugin on oletuksena portissa 4444. Tällä hetkellä tässä projektissa ei ole autentikaatiotukea, koska järjestelmä on tarkoitettu vain suljetussa verkossa ajettavaksi.
+OBS:n Websocket-plugin kuuntelee oletuksena portissa 4444. Tällä hetkellä tässä projektissa ei ole autentikaatiotukea, koska järjestelmä on tarkoitettu vain suljetussa verkossa ajettavaksi.
 
-Observer-koneelle asennetaan kansioon `steamapps\common\Counter-Strike Global Offensive\csgo\cfg` GSI-asetustiedosto (esim. `gamestate_integration_pkm.cfg`. Pelin pitää pyöriä samassa verkossa tai palomuurissa pitää olla aukko peliverkosta PKM-koneen websocket-porttiin (oletus 1999).
+Observer-koneelle asennetaan kansioon `steamapps\common\Counter-Strike Global Offensive\csgo\cfg` GSI-asetustiedosto (ks. `configs/gamestate_integration_pkm.cfg`). Pelin pitää pyöriä samassa verkossa tai palomuurissa pitää olla aukko peliverkosta PKM-koneen websocket-porttiin (oletus 1999).
 
 [Lisätiedot GSI:stä.](https://developer.valvesoftware.com/wiki/Counter-Strike:_Global_Offensive_Game_State_Integration)
 
-Asetustiedostoihin laitetaan pelaajien steamID:t SteamID64-muodossa, ja tiedostoja on yksi per joukkue. Paikat myöskin pelaajien takaa vasemmalta laskien. Paikka 0 tarkoittaa sitä, että pelaajalla ei ole kameraa tai kamera on esimerkiksi väärin suunnattu, ja sen takia halutaan hetkellisesti poistaa käytöstä näin:
+Asetustiedostoihin laitetaan pelaajien steamID:t SteamID64-muodossa, ja tiedostoja on yksi per joukkue. Paikat myöskin pelaajien takaa vasemmalta laskien. Paikka `0` tarkoittaa sitä, että pelaajalla ei ole kameraa tai kamera on esimerkiksi väärin suunnattu, ja sen takia halutaan hetkellisesti poistaa käytöstä näin:
 
-  * editoi fileä (muuta kameralle paikaksi 0),
+  * editoi tiedostoa ja muuta halutulle kameralle paikaksi `0`,
   * keskeytä ajossa oleva ohjelma `ctrl+c` ja
   * käynnistä ohjelma uudelleen.
 
-Serverin käynnistys: `./pkm -A team2.json -B team1.json`
+# Serverin käynnistys
+
+Kopioi ja muokkaa `pkm.json`, `team1.json` ja `team2.json` tiedostot `pkm.exe`:n kanssa samaan hakemistoon. Sen jälkeen suorita:
+
+`./pkm -A team2.json -B team1.json`
 
 # TODO
 - [x] Tee parempi README.md
