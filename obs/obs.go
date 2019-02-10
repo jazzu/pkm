@@ -26,7 +26,7 @@ type (
 	}
 
 	ConfigFile struct {
-		CameraServers []CameraServer    `json:"cameraServers"`
+		CameraServers []CameraServer    `json:"camera_servers"`
 		Players       map[string]Player `json:"players"`
 		Cameras       map[string]string `json:"cameras"`
 		//todo: pkm listen port
