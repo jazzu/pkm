@@ -46,10 +46,6 @@ func ReceiveGameStatus(w http.ResponseWriter, r *http.Request) {
 	}
 	logComparisonJson(data)
 
-	if _, ok := obs.Players["1"]; ok {
-		obs.PopulatePlayerConf(string(rawPost))
-	}
-
 	// Varmista että JSON:issa tuli mukana pelaajatieto ja yritä vaihtaa kuvaa ainoastaan jos se löytyy
 	if data.PlayerID != nil {
 		obs.SwitchPlayer(ActiveInput, data.PlayerID.SteamID)
@@ -66,16 +62,6 @@ func ReceiveActiveInput(w http.ResponseWriter, r *http.Request) {
 
 	PreviousInput = ActiveInput
 	ActiveInput, err = strconv.ParseInt(vars["input"], 10, 64)
-
-	//if PreviousInput != ActiveInput {
-	//	log.Printf("vMix input vaihtui %d -> %d", PreviousInput, ActiveInput)
-
-	// Jos vMixin input on vaihtunut edellisestä pollauksesta
-	// ja uusi input ei ole observer, tyhjennä CasparCG:n ulostulo
-	//	if obs.Servers[ActiveInput] == 0 {
-	//			obs.ClearOut()
-	//		}
-	//	}
 
 	if err != nil {
 		log.Fatal("Virheellinen GET-parametri: ", err)
@@ -100,7 +86,6 @@ func logComparisonJson(data GameData) {
 	if err != nil {
 		log.Fatal("Vertailumerkkijonon muodostaminen epäonnistui: ", err)
 		log.Print(string(checkData))
-
 	}
 }
 

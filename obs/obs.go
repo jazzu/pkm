@@ -8,19 +8,16 @@ import (
 	"log"
 	"net/url"
 	"os"
-	"strings"
 	"strconv"
 
 	"github.com/gorilla/websocket"
-	"github.com/jmoiron/jsonq"
 )
 
 type (
 	Player struct {
 		PlayerName string `json:"player_name"`
-		//Server  int    `json:"server"`
-		Channel string `json:"channel"` //todo: siivoa json-formaatti
-		Place   int    `json:"place"`
+		Channel    string `json:"channel"` //todo: siivoa json-formaatti
+		Place      int    `json:"place"`
 	}
 
 	CameraServer struct {
@@ -117,27 +114,6 @@ func Configure() {
 	fmt.Println(Players)
 
 	log.Printf("load valmis")
-}
-
-// todo: tekeekö tämä mitään?
-func PopulatePlayerConf(jsonData string) {
-	plrs := make(map[string]Player)
-
-	// Jos player conffi on tyhjä, ota allplayers tieto pelidatasta ja laita niistä SteamID:t talteen
-	testing := map[string]interface{}{}
-	dec := json.NewDecoder(strings.NewReader(jsonData))
-	dec.Decode(&testing)
-	jq := jsonq.NewQuery(testing)
-	obj, _ := jq.Object("allplayers")
-
-	var n int = 1
-	for k := range obj {
-		plr := Player{}
-		//plr.Server = Players[strconv.Itoa(n)].Server
-		plr.Channel = Players[strconv.Itoa(n)].Channel
-		plrs[k] = plr
-		n++
-	}
 }
 
 // SwitchPlayer käskee tunnettuja palvelimia vaihtamaan inputtia, samat komennot jokaiselle.
