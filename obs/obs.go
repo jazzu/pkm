@@ -2,225 +2,205 @@ package obs
 
 import (
 	"encoding/json"
+	"github.com/jmoiron/jsonq"
 
-	"flag"
+	"github.com/sytem/pkm/tools"
+
 	"fmt"
 	"log"
 	"net/url"
-	"os"
 	"strconv"
 
 	"github.com/gorilla/websocket"
 )
 
 type (
-	Player struct {
-		PlayerName string `json:"player_name"`
-		Channel    string `json:"channel"` //todo: siivoa json-formaatti
-		Place      int    `json:"place"`
+	Config struct {
+		TeamAFile *string
+		TeamBFile *string
+		TestOnly  *bool
 	}
 
-	CameraServer struct {
-		Ip   string `json:"ip"`
-		Port string `json:"port"`
-	}
-
-	ConfigFile struct {
-		CameraServers []CameraServer    `json:"camera_servers"`
-		Players       map[string]Player `json:"players"`
-		Cameras       map[string]string `json:"cameras"`
-		//todo: pkm listen port
-	}
-
-	obsConfig struct {
-		address string
-		port    string
-		conn    *websocket.Conn
+	obsServer struct {
+		address    string
+		port       string
+		connection *websocket.Conn
 	}
 
 	// OBS:lle lähetettävä komento
-	SetSceneItemRender struct {
+	SetSceneItemProperties struct {
 		RequestType string `json:"request-type"`
 		MessageId   string `json:"message-id"`
-		Source      string `json:"source"`
-		Render      bool   `json:"render"`
+		Item        string `json:"item"`
+		Visible     bool   `json:"visible"`
 		SceneName   string `json:"scene-name"`
+	}
+
+	Player struct {
+		PlayerName string `json:"player_name"`
+		Camera     string `json:"camera"` //todo: siivoa json-formaatti
+		Place      int    `json:"place"`
 	}
 )
 
 var (
-	obs            []obsConfig
-	Players        map[string]Player
-	Cameras        map[string]string
-	previousPlayer string
-	messageID      int
-	testOnly       bool
+	obsServers        []obsServer
+	Players           map[string]interface{}
+	Cameras           map[string]interface{}
+	previousPlayerSID string
+	messageID         int
+	testOnly          bool
 )
 
-func Configure() {
+func Configure(configuration Config) {
+	var err error
 
-	confFilenamePtr := flag.String("conf", "pkm.json", "json-file for basic configuration")
-	teamAPtr := flag.String("A", "team1.json", "json-file for team A")
-	teamBPtr := flag.String("B", "team2.json", "json-file for team B")
-	testOnlyPtr := flag.Bool("test", false, "test server without sending commands")
-	flag.Parse()
+	serverSetup()
 
-	conffile := ConfigFile{}
-	readConfig(&conffile, *confFilenamePtr)
+	testOnly = *configuration.TestOnly
 
-	teamAfile := ConfigFile{}
-	readConfig(&teamAfile, *teamAPtr)
+	Cameras = make(map[string]interface{})
+	Cameras, err = tools.CQ.Object("cameras")
 
-	teamBfile := ConfigFile{}
-	readConfig(&teamBfile, *teamBPtr)
+	teamConfigurations := make(map[string]*jsonq.JsonQuery)
+	teamConfigurations["A"] = tools.LoadJsonFile(*configuration.TeamAFile)
+	teamConfigurations["B"] = tools.LoadJsonFile(*configuration.TeamBFile)
 
-	obs = make([]obsConfig, 2) //todo: tästä kovakoodaus pois
-	for i, v := range conffile.CameraServers {
-		log.Printf("%d:%s", i, v.Ip)
-		obs[i].address = v.Ip
-		obs[i].port = v.Port
-		connectOBS(obs[i].address, obs[i].port, i)
-	}
-
-	testOnly = *testOnlyPtr
-
-	Players = make(map[string]Player)
-	Players = conffile.Players
-
-	Cameras = make(map[string]string)
-	Cameras = conffile.Cameras
-
-	fmt.Println("Load players:")
+	log.Println("Load players:")
 	//yhdistetään eri tiedostot yhteen
-	for k, v := range teamAfile.Players {
-		fmt.Printf("%s -> %s : %d\n", k, v.PlayerName, v.Place)
-		var camera = "A" + strconv.Itoa(v.Place)
-		v.Channel = Cameras[camera]
-		Players[k] = v
-	}
+	for teamLetter, confJQ := range teamConfigurations {
+		var teamConf map[string]interface{}
+		teamConf, err = confJQ.Object("players")
 
-	for k, v := range teamBfile.Players {
-		fmt.Printf("%s -> %s : %d\n", k, v.PlayerName, v.Place)
-		//todo poikkeus paikka0
-		var camera = "B" + strconv.Itoa(v.Place)
-		v.Channel = Cameras[camera]
-		fmt.Println("set channel to :" + v.Channel)
-		Players[k] = v
-	}
+		if err != nil {
+			log.Fatalln("Joukkuekonfiguraation lukeminen ei onnistunut: ", err)
+		}
 
-	messageID = 0
-	previousPlayer = ""
-
-	fmt.Println(Players)
-
-	log.Printf("load valmis")
-}
-
-// SwitchPlayer käskee tunnettuja palvelimia vaihtamaan inputtia, samat komennot jokaiselle.
-//Inputtien nimet pitää olla OBS:ssä uniikkeja jotta vain oikea kone reagoi (muut antavat virheen josta ei välitetä)
-
-//todo: silmukoita palvelimista, vai oma funktio joka lähettää kaikille
-func SwitchPlayer(input int64, currentPlayer string) {
-
-	log.Print(Players[currentPlayer].Channel)
-	if Players[currentPlayer].Channel == "" {
-		// todo formaatti sellaiseksi että voi copypasteta suoraan conffiin
-		log.Printf("Pelaajatunnusta %s ei löytynyt. Pelaajakuvan vaihto ei onnistu.", currentPlayer)
-		//sendCommand(Players[previousPlayer].Channel, false, 0)
-		//sendCommand(Players[previousPlayer].Channel, false, 1)
-		previousPlayer = "0"
-		return
-	}
-
-	if previousPlayer == "" {
-		log.Printf("nollataan")
-		//tähän reset all pimeäksi, koska muuten saadaan tuplia
-		for _, player := range Players {
-			sendCommand(player.Channel, false, 0)
-			sendCommand(player.Channel, false, 1)
+		for steamId, iPlayerConf := range teamConf {
+			playerConf := iPlayerConf.(Player)
+			// Jos pelaajan place-arvoksi on annettu 0, ei tämän videokuvaa näytetä observauksen aikana.
+			cameraId := teamLetter + strconv.Itoa(playerConf.Place)
+			playerConf.Camera = Cameras[cameraId].(string)
+			log.Printf("%s -> %s : %d - %s\n", steamId, playerConf.PlayerName, playerConf.Place, playerConf.Camera)
+			Players[steamId] = playerConf
 		}
 	}
 
-	if currentPlayer != previousPlayer {
+	log.Println(Players)
+	log.Println("OBS konfiguraation lataus tehty ja palvelimiin yhdistetty.")
+}
 
-		log.Printf("Observattava pelaaja vaihtui %d -> %d", previousPlayer, currentPlayer)
-		//todo: tässä voisi olla myös for-luuppi käydä kaikki yhdistetyt serverit läpi
-		//uusi pelaaja näkyviin
-		sendCommand(Players[currentPlayer].Channel, true, 0)
-		sendCommand(Players[currentPlayer].Channel, true, 1)
+// SwitchPlayer käskee tunnettuja palvelimia vaihtamaan inputtia, samat komennot jokaiselle.
+// Inputtien nimet pitää olla OBS:ssä uniikkeja jotta vain oikea kone reagoi (muut antavat virheen josta ei välitetä)
 
-		//vanha pois. jos uusi pelaaja on pienemmällä numerolla kuin vanha, näkyvä muutosta tapahtuu vasta tässä
-		sendCommand(Players[previousPlayer].Channel, false, 0)
-		sendCommand(Players[previousPlayer].Channel, false, 1)
+//todo: silmukoita palvelimista, vai oma funktio joka lähettää kaikille
+func SwitchPlayer(currentPlayerSID string) {
+	cp := Players[currentPlayerSID].(Player)
+	pp := Players[previousPlayerSID].(Player)
 
-		previousPlayer = currentPlayer
+	log.Println("Valittu pelaajakamera: ", cp.Camera)
+	if cp.Camera == "" {
+		// TODO: formaatti sellaiseksi että voi copypasteta suoraan conffiin
+		log.Printf("Pelaajatunnusta %s ei löytynyt. Pelaajakuvan vaihto ei onnistu.\n", currentPlayerSID)
+		previousPlayerSID = "0"
+		return
+	}
+
+	if previousPlayerSID == "" {
+		log.Printf("nollataan")
+		// Piilotetaan kaikki kamerakuvat, koska muuten saadaan tuplia
+		for _, p := range Players {
+			player := p.(Player)
+			setCameraVisibility(player.Camera, false)
+		}
+	}
+
+	if currentPlayerSID != previousPlayerSID {
+		log.Printf("Observattava pelaaja vaihtui %s -> %s", previousPlayerSID, currentPlayerSID)
+		// Uusi pelaaja näkyviin
+		setCameraVisibility(cp.Camera, true)
+		// Vanha pois. Jos uusi pelaaja on pienemmällä numerolla kuin vanha, näkyvä muutos tapahtuu vasta tässä
+		setCameraVisibility(pp.Camera, false)
+		previousPlayerSID = currentPlayerSID
 	}
 }
 
-func sendCommand(input string, vis bool, server int) {
+func serverSetup() {
+	servers, err := tools.CQ.ArrayOfObjects("camera_servers")
+	if err != nil {
+		log.Fatal("OBS-palvelinten konfiguraatioiden luku epäonnistui: %s", err)
+	}
+
+	obsServers = make([]obsServer, len(servers))
+	for i, v := range servers {
+		log.Printf("%d:%s", i)
+		obsServers[i].address = v["address"].(string)
+		obsServers[i].port = v["port"].(string)
+		if err = obsServers[i].Connect(); err != nil {
+			log.Fatal("OBS palvelimeen yhdistäminen epäonnistui: ", err)
+		}
+	}
+}
+
+func setCameraVisibility(camera string, visible bool) {
+	for _, s := range obsServers {
+		s.SetVisibility(camera, visible)
+	}
+}
+
+func (obs obsServer) Connect() error {
+	var err error
+	u := url.URL{Scheme: "ws", Host: obs.host(), Path: "/"}
+	obs.connection, _, err = websocket.DefaultDialer.Dial(u.String(), nil)
+	if err != nil {
+		return fmt.Errorf("Yhteys OBS-palvelimeen %s epäonnistui: %s", obs.host(), err)
+	}
+	log.Printf("Yhteys OBS-palvelimeen %s avattu", obs.host)
+
+	for i := 1; i <= 10; i++ {
+		obs.SetVisibility("cam"+strconv.Itoa(i), false)
+	}
+
+	log.Printf("Kamerakuvat piilotettu")
+	return nil
+}
+
+func (obs obsServer) SetVisibility(camera string, visible bool) {
+	var (
+		err           error
+		commandToSend *SetSceneItemProperties
+		jsonToSend    []byte
+	)
 
 	messageID++
-
-	//log.Println("foo")
-	//log.Println(server)
-
-	commandToSend := &SetSceneItemRender{
-		RequestType: "SetSceneItemRender",
+	commandToSend = &SetSceneItemProperties{
+		RequestType: "SetSceneItemProperties",
 		MessageId:   strconv.Itoa(messageID),
-		Source:      input, // cam1..cam10
-		Render:      vis,
+		Item:        camera, // cam1..cam10
+		Visible:     visible,
 		SceneName:   "Scene1"}
 
-	jsonToSend, _ := json.Marshal(commandToSend)
+	jsonToSend, err = json.Marshal(commandToSend)
+	if err != nil {
+		log.Fatalf("Lähetettävän JSON-viestin muodostaminen epäonnistui: %s", err)
+		return
+	}
 
 	//debug ilman servereitä
 	if testOnly {
-		log.Println("Not sending command, just test")
+		log.Println("Testimoodi, viestiä ei lähetetä OBS-palvelimelle")
 		//log.Println(jsonToSend)
-		//log.Println(obs[server].conn)
+		//log.Println(obsServers.connection)
 		return
 	}
 
-	err := obs[server].conn.WriteMessage(websocket.TextMessage, jsonToSend)
+	err = obs.connection.WriteMessage(websocket.TextMessage, jsonToSend)
 	if err != nil {
-		log.Println("write:", err)
-		return
+		log.Printf("Websocket kirjoitus OBS-palvelimelle %s epäonnistui: %s", obs.host(), err)
 	}
-
+	return
 }
 
-func connectOBS(address string, port string, server int) {
-	var err error
-	addr := address + ":" + port
-	u := url.URL{Scheme: "ws", Host: addr, Path: "/"}
-	c, _, err := websocket.DefaultDialer.Dial(u.String(), nil)
-	obs[server].conn = c
-	if err != nil {
-		log.Printf("Yhteys OBS-palvelimeen %s:%s epäonnistui: %s", address, port, err)
-		return
-	}
-	log.Printf("Yhteys OBS-palvelimeen %s:%s avattu", address, port)
-
-	//todo loop
-	sendCommand("cam1", false, server)
-	sendCommand("cam2", false, server)
-	sendCommand("cam3", false, server)
-	sendCommand("cam4", false, server)
-	sendCommand("cam5", false, server)
-	sendCommand("cam6", false, server)
-	sendCommand("cam7", false, server)
-	sendCommand("cam8", false, server)
-	sendCommand("cam9", false, server)
-	sendCommand("cam10", false, server)
-
-	log.Printf("tyhjennetty")
-}
-
-func readConfig(conf *ConfigFile, filename string) {
-	file, _ := os.Open(filename)
-	decoder := json.NewDecoder(file)
-	err := decoder.Decode(conf)
-	if err != nil {
-		log.Fatal("Konfiguraatiotiedoston lukuvirhe: ", err)
-	}
+func (obs obsServer) host() string {
+	return obs.address + ":" + obs.port
 }
