@@ -1,11 +1,32 @@
 package tools
 
-import "os"
+import (
+	"encoding/json"
+	"github.com/jmoiron/jsonq"
+	"log"
+	"os"
+)
 
-func GetEnvParam(key string, defaultValue string) string {
-	result := os.Getenv(key)
-	if len(result) == 0 {
-		return defaultValue
+var (
+	CQ *jsonq.JsonQuery
+)
+
+func Configure(filename string) {
+	CQ = LoadJsonFile(filename)
+}
+
+func LoadJsonFile(filename string) *jsonq.JsonQuery {
+	file, err := os.Open(filename)
+	if err != nil {
+		log.Fatalf("JSON-tiedoston %s lataaminen epäonnistui: %s", filename, err)
+		return nil
 	}
-	return result
+	decoder := json.NewDecoder(file)
+	configuration := map[string]interface{}{}
+	err = decoder.Decode(&configuration)
+	if err != nil {
+		log.Fatalf("Konfiguraatiotiedoston %s lukuvirhe: %s", filename, err)
+		return nil
+	}
+	return jsonq.NewQuery(configuration)
 }
