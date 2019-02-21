@@ -26,7 +26,7 @@ Kaksi videoserveriä lähettävät kuvaa NDI:llä vmixille tms kuvamikserille, a
 1. OBS studio [https://obsproject.com/](https://obsproject.com/)
 2. NDI-plugin [https://github.com/Palakis/obs-ndi](https://github.com/Palakis/obs-ndi)
 3. NDI redist [http://new.tk/NDIRedistV3](http://new.tk/NDIRedistV3)
-4. websocket-plugin [https://github.com/Palakis/obs-websocket](https://github.com/Palakis/obs-websocket)
+4. obs-websocket plugin OBS:lle [https://github.com/Palakis/obs-websocket](https://github.com/Palakis/obs-websocket), >=4.3.0
 
 Kummallekin videoserverille:
   * Asenna ylläolevat.
