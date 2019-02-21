@@ -1,10 +1,10 @@
 {
 "players":
   {
-    "76561198293547771":  {"player_name": "B-eka", "server": 0, "channel": "cam3", "place": 1},
-    "76561198293547772":  {"player_name": "B-toka", "server": 0, "channel": "cam7", "place": 2},
-    "76561198293547773":  {"player_name": "B-kolmas", "server": 0, "channel": "cam8", "place": 3},
-    "76561198293547774":  {"player_name": "B-neljäs", "server": 0, "channel": "cam9", "place": 4},
-    "76561198293547775":  {"player_name": "B-viides", "server": 0, "channel": "cam10", "place": 5}
+    "76561198293547771":  {"player_name": "B-eka", "place": 1},
+    "76561198293547772":  {"player_name": "B-toka", "place": 2},
+    "76561198293547773":  {"player_name": "B-kolmas", "place": 3},
+    "76561198293547774":  {"player_name": "B-neljäs", "place": 4},
+    "76561198293547775":  {"player_name": "B-viides", "place": 5}
   }
 }
