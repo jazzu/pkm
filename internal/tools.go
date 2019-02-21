@@ -1,8 +1,9 @@
-package tools
+package internal
 
 import (
 	"encoding/json"
 	"github.com/jmoiron/jsonq"
+	"io"
 	"log"
 	"os"
 )
@@ -11,7 +12,7 @@ var (
 	CQ *jsonq.JsonQuery
 )
 
-func Configure(filename string) {
+func ConfigurePKM(filename string) {
 	CQ = LoadJsonFile(filename)
 }
 
@@ -21,11 +22,16 @@ func LoadJsonFile(filename string) *jsonq.JsonQuery {
 		log.Fatalf("JSON-tiedoston %s lataaminen epäonnistui: %s", filename, err)
 		return nil
 	}
-	decoder := json.NewDecoder(file)
+	return DecodeJsonToJsonQ(file)
+}
+
+func DecodeJsonToJsonQ(reader io.Reader) *jsonq.JsonQuery {
+	var err error
+	decoder := json.NewDecoder(reader)
 	configuration := map[string]interface{}{}
 	err = decoder.Decode(&configuration)
 	if err != nil {
-		log.Fatalf("Konfiguraatiotiedoston %s lukuvirhe: %s", filename, err)
+		log.Fatalf("Konfiguraation lukuvirhe: %s", err)
 		return nil
 	}
 	return jsonq.NewQuery(configuration)

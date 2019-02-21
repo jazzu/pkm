@@ -1,10 +1,8 @@
-package obs
+package internal
 
 import (
 	"encoding/json"
 	"github.com/jmoiron/jsonq"
-
-	"github.com/sytem/pkm/tools"
 
 	"fmt"
 	"log"
@@ -52,7 +50,7 @@ var (
 	testOnly          bool
 )
 
-func Configure(configuration Config) {
+func ConfigureOBS(configuration Config) {
 	var err error
 
 	serverSetup()
@@ -60,11 +58,11 @@ func Configure(configuration Config) {
 	testOnly = *configuration.TestOnly
 
 	Cameras = make(map[string]interface{})
-	Cameras, err = tools.CQ.Object("cameras")
+	Cameras, err = CQ.Object("cameras")
 
 	teamConfigurations := make(map[string]*jsonq.JsonQuery)
-	teamConfigurations["A"] = tools.LoadJsonFile(*configuration.TeamAFile)
-	teamConfigurations["B"] = tools.LoadJsonFile(*configuration.TeamBFile)
+	teamConfigurations["A"] = LoadJsonFile(*configuration.TeamAFile)
+	teamConfigurations["B"] = LoadJsonFile(*configuration.TeamBFile)
 
 	log.Println("Load players:")
 	//yhdistetään eri tiedostot yhteen
@@ -126,7 +124,7 @@ func SwitchPlayer(currentPlayerSID string) {
 }
 
 func serverSetup() {
-	servers, err := tools.CQ.ArrayOfObjects("camera_servers")
+	servers, err := CQ.ArrayOfObjects("camera_servers")
 	if err != nil {
 		log.Fatal("OBS-palvelinten konfiguraatioiden luku epäonnistui: %s", err)
 	}

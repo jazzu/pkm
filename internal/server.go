@@ -1,16 +1,14 @@
-package server
+package internal
 
 import (
-	"encoding/json"
+	"bytes"
 	"flag"
+	"github.com/gorilla/mux"
+	"github.com/jmoiron/jsonq"
 	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
-
-	"github.com/gorilla/mux"
-	"github.com/sytem/pkm/obs"
-	"github.com/sytem/pkm/tools"
 )
 
 func Run() {
@@ -29,20 +27,19 @@ func Run() {
 
 // ReceiveGameStatus käsittelee CS:GO observerin lähettämän pelidatapaketin
 func ReceiveGameStatus(w http.ResponseWriter, r *http.Request) {
-	rawPost := getRawPost(r)
-
-	var data GameData
-	err := json.Unmarshal(rawPost, &data)
-	if err != nil {
-		log.Fatal(err)
-	}
-	logComparisonJson(data)
+	var data *jsonq.JsonQuery
+	data = DecodeJsonToJsonQ(bytes.NewReader(getRawPost(r)))
 
 	// Varmista että JSON:issa tuli mukana pelaajatieto ja yritä vaihtaa kuvaa ainoastaan jos se löytyy
-	if data.PlayerID != nil {
-		obs.SwitchPlayer(data.PlayerID.SteamID)
-		log.Print("\"" + data.PlayerID.SteamID + "\": {\"player_name\": \"" + data.PlayerID.Name + "\", \"place\": 0},")
+	player, err := data.Object("player")
+	if err != nil {
+		log.Println("GSI JSON player elementin lukeminen epäonnistui: ", err)
 	}
+	if player != nil {
+		SwitchPlayer(player["steamid"].(string))
+		log.Print("\"" + player["steamid"].(string) + "\": {\"player_name\": \"" + player["name"].(string) + "\", \"place\": 0},")
+	}
+
 	w.WriteHeader(http.StatusOK)
 }
 
@@ -55,40 +52,30 @@ func getRawPost(r *http.Request) (body []byte) {
 	return body
 }
 
-func logComparisonJson(data GameData) {
-	var checkData []byte
-	var err error
-	checkData, err = json.Marshal(data)
-	if err != nil {
-		log.Fatal("Vertailumerkkijonon muodostaminen epäonnistui: ", err)
-		log.Print(string(checkData))
-	}
-}
-
 func setup() {
-	pConfFilename := flag.String("conf", "pkm.json", "JSON konfiguraatiotiedosto yleisille asetuksille")
+	pConfFilename := flag.String("conf", "internal.json", "JSON konfiguraatiotiedosto yleisille asetuksille")
 
-	obsConfig := obs.Config{}
+	obsConfig := Config{}
 	obsConfig.TeamAFile = flag.String("A", "team1.json", "JSON konfiguraatiotiedosto A-tiimille")
 	obsConfig.TeamBFile = flag.String("B", "team2.json", "JSON konfiguraatiotiedosto B-tiimille")
 	obsConfig.TestOnly = flag.Bool("test", false, "testaa palvelinsovellusta paikallisesti lähettämättä ohjauskomentoja")
 	flag.Parse()
 
-	tools.Configure(*pConfFilename)
-	obs.Configure(obsConfig)
+	ConfigurePKM(*pConfFilename)
+	ConfigureOBS(obsConfig)
 }
 
 func listenAddress() string {
 	var address, port string
 	var err error
 
-	address, err = tools.CQ.String("pkm", "address")
+	address, err = CQ.String("internal", "address")
 	if err != nil {
 		log.Fatal("Puuttuva tai virheellinen PKM osoitekonfiguraatio: ", err)
 		os.Exit(1)
 	}
 
-	port, err = tools.CQ.String("pkm", "port")
+	port, err = CQ.String("internal", "port")
 	if err != nil {
 		log.Fatal("Puuttuva tai virheellinen PKM porttikonfiguraatio: ", err)
 		os.Exit(1)
