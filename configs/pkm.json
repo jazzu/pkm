@@ -1,8 +1,12 @@
 {
+	"pkm":
+	{
+		"address": "127.0.0.1", "port": "1999"
+	},
 	"camera_servers":
 	[
-		{"ip": "127.0.0.1", "port": "4444"},
-		{"ip": "localhost", "port": "4444"}
+		{"address": "127.0.0.1", "port": "4444"},
+		{"address": "localhost", "port": "4444"}
 	],
 	"cameras":
 	{
