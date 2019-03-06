@@ -52,14 +52,3 @@ Asetustiedostoihin laitetaan pelaajien steamID:t SteamID64-muodossa, ja tiedosto
 Kopioi ja muokkaa `pkm.json`, `team1.json` ja `team2.json` tiedostot `pkm.exe`:n kanssa samaan hakemistoon. Sen jälkeen suorita:
 
 `./pkm -A team2.json -B team1.json`
-
-# TODO
-- [x] Tee parempi README.md
-- [x] siirrä kovakoodatut asiat asetustiedostoon
-- [ ] käyttöliittymä käsiohjaukseen
-- [x] ja tiimien valintaan
-- [ ] siirrä konfiguraatiologiikka obs.go:sta server.go:hon
-- [ ] korjaa obs.go:ssa olevat todo-kommentit
-- [x] lisää GSI-tiedosto tänne
-- [ ] lisää obs-mallifilet tänne
-- [ ] tuki eri formaateissa oleville steam-id:ille (esim. https://github.com/MrWaggel/gosteamconv tai https://godoc.org/github.com/Acidic9/steam)
